@@ -1,0 +1,33 @@
+<table class="table table-striped table-hover">
+	<thead>
+		<tr>
+			<th>Produto</th>
+			<th>Quantidade</th>
+			<th>Preço</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var p in Produtos)
+		{
+			<tr>
+				<td>@p.Nome</td>
+				<td>@p.Quantidade</td>
+				<td>R$ @p.Preco.ToString("N2")</td>
+				<td class="text-end">
+					<button class="btn btn-sm btn-outline-danger" @onclick="() => OnRemover.InvokeAsync(p)">Remover</button>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+
+@code {
+	// A tabela só desenha o que recebe: não sabe de onde a lista vem.
+	[Parameter]
+	public List<Produto> Produtos { get; set; } = new();
+
+	// Avisa a página quando o usuário clica em "Remover"; quem apaga do banco é a página.
+	[Parameter]
+	public EventCallback<Produto> OnRemover { get; set; }
+}

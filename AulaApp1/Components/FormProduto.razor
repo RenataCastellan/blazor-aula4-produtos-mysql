@@ -1,0 +1,34 @@
+<EditForm Model="novo" OnValidSubmit="Salvar">
+	<DataAnnotationsValidator />
+
+	<label class="form-label">Nome</label>
+	<InputText class="form-control" @bind-Value="novo.Nome" />
+	<ValidationMessage For="() => novo.Nome" class="text-danger" />
+
+	<label class="form-label">Preço</label>
+	<InputNumber class="form-control" @bind-Value="novo.Preco" />
+	<ValidationMessage For="() => novo.Preco" class="text-danger" />
+
+	<label class="form-label">Quantidade</label>
+	<InputNumber class="form-control" @bind-Value="novo.Quantidade" />
+	<ValidationMessage For="() => novo.Quantidade" class="text-danger" />
+
+	<button type="submit" class="btn btn-primary mt-3">Adicionar produto</button>
+</EditForm>
+
+@code {
+	// Avisa a página (o pai) quando um produto válido foi cadastrado.
+	[Parameter]
+	public EventCallback<Produto> OnProdutoCadastrado { get; set; }
+
+	private Produto novo = new();
+
+	private async Task Salvar()
+	{
+		// O formulário NÃO guarda nada: só entrega o produto para o pai...
+		await OnProdutoCadastrado.InvokeAsync(novo);
+
+		// ...e depois se limpa.
+		novo = new Produto();
+	}
+}

@@ -1,0 +1,61 @@
+﻿@page "/produtos"
+@using AulaApp1.Data
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<AppDbContext> DbFactory
+
+<h3 class="mb-4">Produtos</h3>
+<div class="row">
+	<div class="col-md-4">
+		<Cartao Titulo="Novo produto">
+			<FormProduto OnProdutoCadastrado="AdicionarProduto" />
+		</Cartao>
+	</div>
+
+	<div class="col-md-8">
+		@if (produtos is null)
+		{
+			<p class="text-muted">Carregando...</p>
+		}
+		else
+		{
+			@if (produtos.Count == 0)
+			{
+				<p class="text-muted">Nenhum produto cadastrado</p>
+			}
+
+			<TabelaProdutos Produtos="produtos" OnRemover="RemoverProduto" />
+		}
+	</div>
+</div>
+
+@code {
+	private List<Produto>? produtos;
+
+	// Ao abrir a página, a lista vem do banco (e não mais da memória).
+	protected override async Task OnInitializedAsync()
+	{
+		await CarregarProdutos();
+	}
+
+	private async Task CarregarProdutos()
+	{
+		await using var db = await DbFactory.CreateDbContextAsync();
+		produtos = await db.Produtos.OrderBy(p => p.Nome).ToListAsync();
+	}
+
+	private async Task AdicionarProduto(Produto produto)
+	{
+		await using var db = await DbFactory.CreateDbContextAsync();
+		db.Produtos.Add(produto);    // só marca como "novo"...
+		await db.SaveChangesAsync(); // ...o INSERT acontece aqui
+		await CarregarProdutos();
+	}
+
+	private async Task RemoverProduto(Produto produto)
+	{
+		await using var db = await DbFactory.CreateDbContextAsync();
+		db.Produtos.Remove(produto); // marca como "removido"...
+		await db.SaveChangesAsync(); // ...o DELETE acontece aqui
+		await CarregarProdutos();
+	}
+}
